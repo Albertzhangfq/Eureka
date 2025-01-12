@@ -88,7 +88,7 @@ def main(cfg):
                 break
             for attempt in range(1000):
                 try:
-                    response_cur = openai.ChatCompletion.create(
+                    response_cur = openai.chat.completions.create(
                         model=model,
                         messages=messages,
                         temperature=cfg.temperature,
@@ -106,10 +106,10 @@ def main(cfg):
                 logging.info("Code terminated due to too many failed attempts!")
                 exit()
 
-            responses.extend(response_cur["choices"])
-            prompt_tokens = response_cur["usage"]["prompt_tokens"]
-            total_completion_token += response_cur["usage"]["completion_tokens"]
-            total_token += response_cur["usage"]["total_tokens"]
+            responses.extend(response_cur.choices)
+            prompt_tokens = response_cur.usage.prompt_tokens
+            total_completion_token += response_cur.usage.completion_tokens
+            total_token += response_cur.usage.total_tokens
 
         if cfg.sample == 1:
             logging.info(f"Iteration {iter}: GPT Output:\n " + responses[0]["message"]["content"] + "\n")
@@ -120,7 +120,7 @@ def main(cfg):
         code_runs = [] 
         rl_runs = []
         for response_id in range(cfg.sample):
-            response_cur = responses[response_id]["message"]["content"]
+            response_cur = responses[response_id].message.content
             logging.info(f"Iteration {iter}: Processing Code Run {response_id}")
 
             # Regex patterns to extract python code enclosed in GPT response
